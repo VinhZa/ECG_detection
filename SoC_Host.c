@@ -41,9 +41,9 @@ int main() {
 
     // Tạo tên file input theo record
     char file_signal[100], file_rr[100], file_symbol[100];
-    sprintf(file_signal, "data_list_signal_%d.txt", record);
-    sprintf(file_rr, "data_list_RRinternal_%d.txt", record);
-    sprintf(file_symbol, "data_list_symbol_%d.txt", record);
+    sprintf(file_signal, "data_ListSignal_%d.txt", record);
+    sprintf(file_rr, "data_ListRRinternal_%d.txt", record);
+    sprintf(file_symbol, "data_symbol_%d.txt", record);
 
     FILE *f_signal = fopen(file_signal, "r");
     FILE *f_rr = fopen(file_rr, "r");
