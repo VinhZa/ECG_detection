@@ -7,17 +7,13 @@
 #define MAX_SIZE 10000
 #define PADDING_BASE     0x01000000
 
-#define NUM_BEAT_BASE    0x0000000000 + PADDING_BASE
-#define SIGNAL_BASE      0x0000000004 + PADDING_BASE
+#define START_BASE       0x0000000000 + PADDING_BASE
+#define NUM_BEAT_BASE    0x0000000004 + PADDING_BASE
+#define SIGNAL_BASE      0x0000000008 + PADDING_BASE
 #define RR_BASE          0x0000008000 + PADDING_BASE
 #define SYMBOL_BASE      0x0000008880 + PADDING_BASE
 #define CT_BASE          0x0000008888 + PADDING_BASE
 
-#define START_BASE       0x0000020004
-#define DONE_BASE        0x0000020000
-#define STATE_BASE       0x0000009008 + PADDING_BASE
-#define NORMAL_BASE      0x0000009000 + PADDING_BASE
-#define ABNORMAL_BASE    0x0000009004 + PADDING_BASE
 
 int main() {
     uint32_t signal[MAX_SIZE * 100], rr[MAX_SIZE], symbol[MAX_SIZE];
@@ -76,11 +72,6 @@ int main() {
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* reg_ct       = (uint32_t*)(membase + CT_BASE);
-    uint32_t* reg_start    = (uint32_t*)(CGRA_info.pio_32_mmap + START_BASE);
-    uint32_t* reg_done     = (uint32_t*)(CGRA_info.pio_32_mmap + DONE_BASE);
-    uint32_t* reg_state    = (uint32_t*)(CGRA_info.pio_32_mmap + STATE_BASE);
-    uint32_t* reg_normal   = (uint32_t*)(CGRA_info.pio_32_mmap + NORMAL_BASE);
-    uint32_t* reg_abnormal = (uint32_t*)(CGRA_info.pio_32_mmap + ABNORMAL_BASE);
 
     // Ghi dữ liệu vào FPGA
     *reg_numbeat = num_beat;
