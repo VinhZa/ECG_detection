@@ -5,14 +5,15 @@
 #include "./FPGA_Driver.c"
 
 #define MAX_SIZE 10000
-#define PADDING_BASE     0x01000000
 
-#define START_BASE       0x0000000000 + PADDING_BASE
-#define NUM_BEAT_BASE    0x0000000004 + PADDING_BASE
-#define SIGNAL_BASE      0x0000000008 + PADDING_BASE
-#define RR_BASE          0x0000008000 + PADDING_BASE
-#define SYMBOL_BASE      0x0000008880 + PADDING_BASE
-#define CT_BASE          0x0000008888 + PADDING_BASE
+#define NUM_BEAT_BASE    0x00A0000000 
+#define SIGNAL_BASE      0x00A0000004 
+#define RR_BASE          0x00A8000000 
+#define SYMBOL_BASE      0x00A8800000 
+#define CT_BASE          0x00A8880000
+#define STATE            0x00AA000000
+#define NORMAL           0x00AA000004
+#define ABNORMAL         0x00AA000008
 
 
 int main() {
@@ -91,7 +92,6 @@ int main() {
 
     // Bắt đầu chạy IP
     printf(" Bắt đầu xử lý FPGA...\n");
-    *reg_start = 1;
 
     while (*reg_done == 0);
     printf("FPGA xử lý xong!\n");
