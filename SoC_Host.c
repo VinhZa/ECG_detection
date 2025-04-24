@@ -62,12 +62,12 @@ int main() {
     }
 
     for (int i = 0; i < num_beat * 100; i++) {
-        fscanf(f_signal, "%f", &signal_f[i]);
-        signal[i] = (uint32_t)(signal_f[i] * 65536.0f);
+        fscanf(signal, "%x", &signal_f[i]);
+ 
     }
     for (int i = 0; i < num_beat; i++) {
-        fscanf(f_rr, "%f", &rr_f[i]);
-        rr[i] = (uint32_t)(rr_f[i] * 65536.0f);
+        fscanf(rr, "%x", &rr_f[i]);
+
         fscanf(f_symbol, "%u", &symbol[i]);
     }
 
