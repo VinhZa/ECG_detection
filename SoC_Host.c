@@ -26,11 +26,10 @@
 #define ABNORMAL_BASE    0x000A000008
 
 int main() {
-    uint32_t symbol[MAX_SIZE];
+    uint32_t signal[MAX_SIZE * 100], rr[MAX_SIZE], symbol[MAX_SIZE];
+    uint32_t CT[MAX_SIZE * 100];
     int num_beat, record;
-    uint32_t signal[MAX_SIZE * 100];
-    uint32_t rr[MAX_SIZE];
-    
+
     // Nhập thông tin
     printf("Nhập num_beat: ");
     scanf("%d", &num_beat);
@@ -62,18 +61,11 @@ int main() {
     }
 
     for (int i = 0; i < num_beat * 100; i++) {
-        fscanf(signal, "%x", &signal_f[i]);
- 
+        fscanf(f_signal, "%f", &signal[i]);
     }
     for (int i = 0; i < num_beat; i++) {
-        fscanf(rr, "%x", &rr_f[i]);
-
-        fscanf(f_symbol, "%u", &symbol[i]);
-    }
-
-    printf("\n== In ra 10 giá trị đầu tiên của rr (gốc float) ==\n");
-    for (int i = 0; i < 10 && i < num_beat; i++) {
-        printf("rr[%d] = %f (int fixed = %u)\n", i, rr_f[i], rr[i]);
+        fscanf(f_rr, "%f", &rr[i]);
+        fscanf(f_symbol, "%d", &symbol[i]);
     }
 
     fclose(f_signal);
@@ -90,55 +82,22 @@ int main() {
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* reg_ct       = (uint32_t*)(membase + CT_BASE);
-    uint32_t* reg_state    = (uint32_t*)(membase + STATE_BASE);
-    uint32_t* reg_normal   = (uint32_t*)(membase + NORMAL_BASE);
-    uint32_t* reg_abnormal = (uint32_t*)(membase + ABNORMAL_BASE);
-
+    uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
+    uint32_t* normal        = (uint32_t*)(membase + NORMAL_BASE);
+    
     // Ghi dữ liệu vào FPGA
     *reg_numbeat = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
 
-    memcpy(reg_signal, signal, sizeof(uint32_t) * num_beat * 100);
+    for (int i = 0; i < num_beat * 100; i++) {
+        reg_signal[i] = signal[i];
+    }
     dma_write(SIGNAL_BASE, num_beat * 100);
 
-    memcpy(reg_rr, rr, sizeof(uint32_t) * num_beat);
+    for (int i = 0; i < num_beat; i++) {
+        reg_rr[i] = rr[i];
+        reg_symbol[i] = symbol[i];
+    }
     dma_write(RR_BASE, num_beat);
-
-    if (*reg_state == 11) {
-        memcpy(reg_symbol, symbol, sizeof(uint32_t) * num_beat);
-        
-        dma_write(SYMBOL_BASE, num_beat);
-    }
-
-    // Bắt đầu chạy IP
-    printf("Bắt đầu xử lý FPGA...\n");
-    while (*reg_state == 0);
-    printf("FPGA xử lý xong!\n");
-
-    // Đọc CT
-    dma_read(CT_BASE, num_beat * 100);
-    for (int i = 0; i < num_beat * 100; i++) {
-        CT[i] = reg_ct[i];
-    }
-
-    // Ghi CT ra file
-    char file_output[100];
-    sprintf(file_output, "Output_ROM_%d.txt", record);
-    FILE *f_out = fopen(file_output, "w");
-    if (!f_out) {
-        perror("Lỗi mở file output");
-        return -1;
-    }
-
-    for (int i = 0; i < num_beat * 100; i++) {
-        fprintf(f_out, "%u\n", CT[i]);  // nếu muốn ghi lại thành float thì chia CT[i] / 65536.0f
-    }
-    fclose(f_out);
-    printf("Đã ghi %d CT vào %s\n", num_beat * 100, file_output);
-
-    printf("Normal   = %u\n", *reg_normal & 0xFFF);
-    printf("Abnormal = %u\n", *reg_abnormal & 0xFFF);
-
-    return 0;
+    dma_write(SYMBOL_BASE, num_beat);
 }
-
