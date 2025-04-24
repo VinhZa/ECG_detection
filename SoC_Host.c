@@ -15,7 +15,6 @@
 #define RR_BASE          0x0008000000 
 
 #define SYMBOL_BASE      0x0008800000 
-printf("ok3!\n");
 
 #define CT_BASE          0x0008880000
 
