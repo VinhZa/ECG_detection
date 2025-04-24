@@ -19,8 +19,7 @@
 int main() {
     float signal_f[MAX_SIZE * 100], rr_f[MAX_SIZE];
     uint32_t symbol[MAX_SIZE];
-    uint32_t signal[MAX_SIZE * 100], rr[MAX_SIZE];
-    uint32_t CT[MAX_SIZE * 100];
+    float CT[MAX_SIZE * 100];
     int num_beat, record;
 
     // Nhập thông tin
