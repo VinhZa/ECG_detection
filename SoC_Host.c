@@ -6,22 +6,42 @@
 
 #define MAX_SIZE 10000
 
+printf("Hello!\n");
+
 #define NUM_BEAT_BASE    0x0000000000 
+
+printf("ok!\n");
+
 #define SIGNAL_BASE      0x0000000004 
+printf("ok1!\n");
+
 #define RR_BASE          0x0008000000 
+printf("ok2!\n");
+
 #define SYMBOL_BASE      0x0008800000 
+printf("ok3!\n");
+
 #define CT_BASE          0x0008880000
+printf("ok6!\n");
+
 #define STATE_BASE       0x000A000000
+printf("ok5!\n");
+
 #define NORMAL_BASE      0x000A000004
+printf("ok7!\n");
+
+
 #define ABNORMAL_BASE    0x000A000008
-#define DONE_BASE        0x000A00000C
+printf("ok8!\n");
 
 int main() {
     float signal_f[MAX_SIZE * 100], rr_f[MAX_SIZE];
     uint32_t symbol[MAX_SIZE];
     float CT[MAX_SIZE * 100];
     int num_beat, record;
-
+    uint32_t signal[MAX_SIZE * 100];
+    uint32_t rr[MAX_SIZE];
+    
     // Nhập thông tin
     printf("Nhập num_beat: ");
     scanf("%d", &num_beat);
