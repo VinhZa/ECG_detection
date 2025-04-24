@@ -6,18 +6,20 @@
 
 #define MAX_SIZE 10000
 
-#define NUM_BEAT_BASE    0x00A0000000 
-#define SIGNAL_BASE      0x00A0000004 
-#define RR_BASE          0x00A8000000 
-#define SYMBOL_BASE      0x00A8800000 
-#define CT_BASE          0x00A8880000
-#define STATE            0x00AA000000
-#define NORMAL           0x00AA000004
-#define ABNORMAL         0x00AA000008
-
+#define NUM_BEAT_BASE    0x0000000000 
+#define SIGNAL_BASE      0x0000000004 
+#define RR_BASE          0x0008000000 
+#define SYMBOL_BASE      0x0008800000 
+#define CT_BASE          0x0008880000
+#define STATE_BASE       0x000A000000
+#define NORMAL_BASE      0x000A000004
+#define ABNORMAL_BASE    0x000A000008
+#define DONE_BASE        0x000A00000C
 
 int main() {
-    uint32_t signal[MAX_SIZE * 100], rr[MAX_SIZE], symbol[MAX_SIZE];
+    float signal_f[MAX_SIZE * 100], rr_f[MAX_SIZE];
+    uint32_t symbol[MAX_SIZE];
+    uint32_t signal[MAX_SIZE * 100], rr[MAX_SIZE];
     uint32_t CT[MAX_SIZE * 100];
     int num_beat, record;
 
@@ -52,11 +54,18 @@ int main() {
     }
 
     for (int i = 0; i < num_beat * 100; i++) {
-        fscanf(f_signal, "%x", &signal[i]);
+        fscanf(f_signal, "%f", &signal_f[i]);
+        signal[i] = (uint32_t)(signal_f[i] * 65536.0f);
     }
     for (int i = 0; i < num_beat; i++) {
-        fscanf(f_rr, "%x", &rr[i]);
-        fscanf(f_symbol, "%x", &symbol[i]);
+        fscanf(f_rr, "%f", &rr_f[i]);
+        rr[i] = (uint32_t)(rr_f[i] * 65536.0f);
+        fscanf(f_symbol, "%u", &symbol[i]);
+    }
+
+    printf("\n== In ra 10 giá trị đầu tiên của rr (gốc float) ==\n");
+    for (int i = 0; i < 10 && i < num_beat; i++) {
+        printf("rr[%d] = %f (int fixed = %u)\n", i, rr_f[i], rr[i]);
     }
 
     fclose(f_signal);
@@ -73,27 +82,29 @@ int main() {
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* reg_ct       = (uint32_t*)(membase + CT_BASE);
+    uint32_t* reg_state    = (uint32_t*)(membase + STATE_BASE);
+    uint32_t* reg_normal   = (uint32_t*)(membase + NORMAL_BASE);
+    uint32_t* reg_abnormal = (uint32_t*)(membase + ABNORMAL_BASE);
 
     // Ghi dữ liệu vào FPGA
     *reg_numbeat = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
 
-    for (int i = 0; i < num_beat * 100; i++) {
-        reg_signal[i] = signal[i];
-    }
+    memcpy(reg_signal, signal, sizeof(uint32_t) * num_beat * 100);
     dma_write(SIGNAL_BASE, num_beat * 100);
 
-    for (int i = 0; i < num_beat; i++) {
-        reg_rr[i] = rr[i];
-        reg_symbol[i] = symbol[i];
-    }
+    memcpy(reg_rr, rr, sizeof(uint32_t) * num_beat);
     dma_write(RR_BASE, num_beat);
-    dma_write(SYMBOL_BASE, num_beat);
+
+    if (*reg_state == 11) {
+        memcpy(reg_symbol, symbol, sizeof(uint32_t) * num_beat);
+        
+        dma_write(SYMBOL_BASE, num_beat);
+    }
 
     // Bắt đầu chạy IP
-    printf(" Bắt đầu xử lý FPGA...\n");
-
-    while (*reg_done == 0);
+    printf("Bắt đầu xử lý FPGA...\n");
+    while (*reg_state == 0);
     printf("FPGA xử lý xong!\n");
 
     // Đọc CT
@@ -112,16 +123,13 @@ int main() {
     }
 
     for (int i = 0; i < num_beat * 100; i++) {
-        fprintf(f_out, "%08X\n", CT[i]);
+        fprintf(f_out, "%u\n", CT[i]);  // nếu muốn ghi lại thành float thì chia CT[i] / 65536.0f
     }
     fclose(f_out);
     printf("Đã ghi %d CT vào %s\n", num_beat * 100, file_output);
 
-    uint32_t normal = *reg_normal & 0xFFF;
-    uint32_t abnormal = *reg_abnormal & 0xFFF;
-
-    printf(" Normal   = %u\n", normal);
-    printf("Abnormal = %u\n", abnormal);
+    printf("Normal   = %u\n", *reg_normal & 0xFFF);
+    printf("Abnormal = %u\n", *reg_abnormal & 0xFFF);
 
     return 0;
 }
