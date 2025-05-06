@@ -92,11 +92,11 @@ int main() {
     printf("da toi duoc day1");
 
     dma_read(STATE_BASE, 1)
-    if(*state = 1) begin
+    if(*state = 1) {
         *reg_numbeat = num_beat;
         dma_write(NUM_BEAT_BASE, 1);
         printf("da toi duoc day2");
-    end 
+    }
     
     dma_read(STATE_BASE, 1);
     
