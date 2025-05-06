@@ -89,7 +89,15 @@ int main() {
     // Ghi dữ liệu vào FPGA
     *reg_start = 1;
     dma_write(START_BASE, 1);
-    printf("da toi duoc day1");
+    printf("da toi duoc day1 \n");
+    printf(*state \n);
+
+    
+    
+    for (int i = 0; i < 100; i++) {
+        reg_signal[i] = signal[i];
+    }
+    dma_write(SIGNAL_BASE, 100);
 
     dma_read(STATE_BASE + 0x0000000004, 1);
     if(*state == 1) {
@@ -97,16 +105,9 @@ int main() {
         dma_write(NUM_BEAT_BASE, 1);
         printf("da toi duoc day2");
     }
+        
+    else printf(*state);
     
-    dma_read(STATE_BASE, 1);
-    
-    printf("Giá trị của state: %u\n", *state); 
-    
-    for (int i = 0; i < num_beat * 100; i++) {
-        reg_signal[i] = signal[i];
-    }
-    dma_write(SIGNAL_BASE, num_beat * 100);
-
     for (int i = 0; i < num_beat; i++) {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
