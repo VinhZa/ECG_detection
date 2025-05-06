@@ -20,7 +20,7 @@
 
 int main() {
     uint32_t rr[MAX_SIZE], symbol[MAX_SIZE];
-    int32_t signal[MAX_SIZE * 100],
+    int32_t signal[MAX_SIZE * 100];
     int num_beat, record;
 
     // Nhập thông tin
