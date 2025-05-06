@@ -19,7 +19,7 @@
 #define DONE_BASE        0x000A000048
 
 int main() {
-    uint32_t rr[MAX_SIZE], symbol[MAX_SIZE], state[10];
+    uint32_t rr[MAX_SIZE], symbol[MAX_SIZE];
     int32_t signal[MAX_SIZE * 100];
     int num_beat, record;
 
