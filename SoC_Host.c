@@ -7,27 +7,19 @@
 #define MAX_SIZE 10000
 
 
-#define NUM_BEAT_BASE    0x0000000000 
 
-
-#define SIGNAL_BASE      0x0000000004 
-
+#define START_BASE       0x0000000000
+#define NUM_BEAT_BASE    0x0000000004 
+#define SIGNAL_BASE      0x0000000008 
 #define RR_BASE          0x0008000000 
-
 #define SYMBOL_BASE      0x0008800000 
-
-#define CT_BASE          0x0008880000
-
 #define STATE_BASE       0x000A000000
-
-#define NORMAL_BASE      0x000A000004
-
-
-#define ABNORMAL_BASE    0x000A000008
+#define NORMAL_BASE      0x000A000040
+#define ABNORMAL_BASE    0x000A000044
+#define DONE_BASE        0x000A000048
 
 int main() {
     uint32_t signal[MAX_SIZE * 100], rr[MAX_SIZE], symbol[MAX_SIZE];
-    uint32_t CT[MAX_SIZE * 100];
     int num_beat, record;
 
     // Nhập thông tin
@@ -44,7 +36,7 @@ int main() {
         printf("Record phải trong khoảng 100–200\n");
         return -1;
     }
-
+    
     // Tạo tên file input theo record
     char file_signal[100], file_rr[100], file_symbol[100];
     sprintf(file_signal, "data_ListSignal_%d.txt", record);
@@ -63,6 +55,11 @@ int main() {
     for (int i = 0; i < num_beat * 100; i++) {
         fscanf(f_signal, "%f", &signal[i]);
     }
+
+    printf("150 giá trị đầu tiên của signal:\n");
+    for (int i = 0; i < 150 && i < num_beat * 100; i++) {
+        printf("signal[%d] = %f\n", i, signal[i]);
+    }
     for (int i = 0; i < num_beat; i++) {
         fscanf(f_rr, "%f", &rr[i]);
         fscanf(f_symbol, "%d", &symbol[i]);
@@ -77,6 +74,7 @@ int main() {
     fpga.dma_ctrl = CGRA_info.dma_mmap;
     unsigned char* membase = (unsigned char*)CGRA_info.ddr_mmap;
 
+    uint32_t* reg_start    = (uint32_t*)(membase + START_BASE);
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
@@ -84,8 +82,11 @@ int main() {
     uint32_t* reg_ct       = (uint32_t*)(membase + CT_BASE);
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
     uint32_t* normal        = (uint32_t*)(membase + NORMAL_BASE);
-    
+
     // Ghi dữ liệu vào FPGA
+    *reg_start = 1;
+    dma_write(START_BASE, 1);
+    
     *reg_numbeat = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
 
