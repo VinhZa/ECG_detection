@@ -90,7 +90,7 @@ int main() {
     *reg_start = 1;
     dma_write(START_BASE, 1);
     printf("da toi duoc day1 \n");
-    printf(*state \n);
+    printf("%u\n", *state);
 
     
     
@@ -106,7 +106,7 @@ int main() {
         printf("da toi duoc day2");
     }
         
-    else printf(*state);
+    else printf("%u\n", *state);;
     
     for (int i = 0; i < num_beat; i++) {
         reg_rr[i] = rr[i];
