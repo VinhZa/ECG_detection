@@ -76,8 +76,8 @@ int main() {
         signal[i] = (int32_t)(temp_signal * 65536);  
     }
     
-    printf("150 giá trị đầu tiên của signal:\n");
-    for (int i = 0; i < 150 && i < num_beat * 100; i++) {
+    printf("100 giá trị đầu tiên của signal:\n");
+    for (int i = 0; i < 100 && i < num_beat * 100; i++) {
         printf("signal[%d] = %d\n", i, signal[i]); 
     }
     
@@ -106,9 +106,10 @@ int main() {
     // Ghi dữ liệu vào FPGA
     *reg_start = 1;
     dma_write(START_BASE, 1);
-    printf("da toi duoc day1 \n");
     printf("%u\n", *state);
 
+    *reg_numbeat = num_beat;
+    dma_write(NUM_BEAT_BASE, 1);
     
     
     for (int i = 0; i < 100; i++) {
@@ -119,14 +120,6 @@ int main() {
     dma_read(SIGNAL_BASE, 100);
     write_output(reg_signal);    
  
-
-    dma_read(STATE_BASE + 0x0000000004, 1);
-    if(*state == 1) {
-        *reg_numbeat = num_beat;
-        dma_write(NUM_BEAT_BASE, 1);
-        printf("da toi duoc day2");
-    }
-        
     else printf("%u\n", *state);;
     
     for (int i = 0; i < num_beat; i++) {
