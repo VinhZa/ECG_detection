@@ -53,21 +53,17 @@ int main() {
         return -1;
     }
 
-    for (int i = 0; i < num_beat; i++) {
+    for (int i = 0; i < num_beat*100; i++) {
         float temp_signal;
         fscanf(f_signal, "%f", &temp_signal);
-    
-        // In ra giá trị của temp_signal để kiểm tra
-        printf("temp_signal[%d] = %f\n", i, temp_signal);
-    
-        // Nhân với 65536 và lưu vào signal (signal là mảng số nguyên có dấu)
         signal[i] = (int32_t)(temp_signal * 65536);  
     }
     
     printf("150 giá trị đầu tiên của signal:\n");
     for (int i = 0; i < 150 && i < num_beat * 100; i++) {
-        printf("signal[%d] = %d\n", i, signal[i]);  // In ra giá trị của signal sau khi chuyển đổi
+        printf("signal[%d] = %d\n", i, signal[i]); 
     }
+    
     for (int i = 0; i < num_beat; i++) {
         fscanf(f_rr, "%f", &rr[i]);
         fscanf(f_symbol, "%d", &symbol[i]);
@@ -106,6 +102,8 @@ int main() {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
+
+    printf("da toi duoc day");
     dma_write(RR_BASE, num_beat);
     dma_write(SYMBOL_BASE, num_beat);
 }
