@@ -79,7 +79,6 @@ int main() {
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
-    uint32_t* reg_ct       = (uint32_t*)(membase + CT_BASE);
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
     uint32_t* normal        = (uint32_t*)(membase + NORMAL_BASE);
 
