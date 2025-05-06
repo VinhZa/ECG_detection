@@ -18,6 +18,23 @@
 #define ABNORMAL_BASE    0x000A000044
 #define DONE_BASE        0x000A000048
 
+void write_output(uint32_t reg_signal[100]) {
+    FILE *fileOut = fopen("Output_Signal.txt", "w");
+    
+    if (!fileOut) {
+        perror("Error opening output file");
+        exit(EXIT_FAILURE);
+    }
+    
+    for (int i = 0; i < 100; i++) {
+        fprintf(fileOut, "%d ", reg_signal[i]);
+        fprintf(fileOut, "\n");
+    }
+    
+    fclose(fileOut);
+    printf("Output written to Output_ROM.txt\n");
+}
+
 int main() {
     uint32_t rr[MAX_SIZE], symbol[MAX_SIZE];
     int32_t signal[MAX_SIZE * 100];
@@ -98,6 +115,10 @@ int main() {
         reg_signal[i] = signal[i];
     }
     dma_write(SIGNAL_BASE, 100);
+    
+    dma_read(SIGNAL_BASE, 100);
+    write_output(reg_signal);    
+ 
 
     dma_read(STATE_BASE + 0x0000000004, 1);
     if(*state == 1) {
