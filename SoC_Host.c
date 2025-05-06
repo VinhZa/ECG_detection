@@ -19,7 +19,7 @@
 #define DONE_BASE        0x000A000048
 
 int main() {
-    uint32_t rr[MAX_SIZE], symbol[MAX_SIZE];
+    uint32_t rr[MAX_SIZE], symbol[MAX_SIZE], state[10];
     int32_t signal[MAX_SIZE * 100];
     int num_beat, record;
 
@@ -89,10 +89,15 @@ int main() {
     // Ghi dữ liệu vào FPGA
     *reg_start = 1;
     dma_write(START_BASE, 1);
-    
+    printf("da toi duoc day1");
     *reg_numbeat = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
-
+    printf("da toi duoc day2");
+    
+    dma_read(STATE_BASE, 1);
+    
+    printf("Giá trị của state: %u\n", *state); 
+    
     for (int i = 0; i < num_beat * 100; i++) {
         reg_signal[i] = signal[i];
     }
@@ -103,7 +108,7 @@ int main() {
         reg_symbol[i] = symbol[i];
     }
 
-    printf("da toi duoc day");
+    printf("da toi duoc day3");
     dma_write(RR_BASE, num_beat);
     dma_write(SYMBOL_BASE, num_beat);
 }
