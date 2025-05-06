@@ -56,8 +56,6 @@ int main() {
     for (int i = 0; i < num_beat * 100; i++) {
         float temp_signal;
         fscanf(f_signal, "%f", &temp_signal);
-        printf("temp_signal[%d] = %f\n", i, temp_signal);
-
         signal[i] = (int32_t)(temp_signal * 65536);  
     }
 
