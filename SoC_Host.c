@@ -119,8 +119,7 @@ int main() {
     
     dma_read(SIGNAL_BASE, 100);
     write_output(reg_signal);    
- 
-    else printf("%u\n", *state);;
+
     
     for (int i = 0; i < num_beat; i++) {
         reg_rr[i] = rr[i];
