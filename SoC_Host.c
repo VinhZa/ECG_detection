@@ -104,11 +104,11 @@ int main() {
     uint32_t* normal        = (uint32_t*)(membase + NORMAL_BASE);
 
     // Ghi dữ liệu vào FPGA
-    *reg_start = 1;
+    reg_start = 1;
     dma_write(START_BASE, 1);
     printf("%u\n", *state);
 
-    *reg_numbeat = num_beat;
+    reg_numbeat = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
     
     
