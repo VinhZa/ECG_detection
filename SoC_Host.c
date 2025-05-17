@@ -102,6 +102,13 @@ int main() {
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
     uint32_t* normal        = (uint32_t*)(membase + NORMAL_BASE);
+
+    reg_start[0] = 1;
+    reg_numbeat[0] = num_beat;
+
+    dma_write(START_BASE, 1);
+    dma_write(NUM_BEAT_BASE, 1);
+
     
     for (int i = 0; i < 100; i++) {
         reg_signal[i] = signal[i];
