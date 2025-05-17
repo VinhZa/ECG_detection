@@ -8,9 +8,9 @@
 
 
 
-#define START_BASE       0x0000000000
-#define NUM_BEAT_BASE    0x0000000004 
-#define SIGNAL_BASE      0x0000000008 
+#define START_BASE       0x0000000004
+#define NUM_BEAT_BASE    0x0000000008 
+#define SIGNAL_BASE      0x0000000040 
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
 #define STATE_BASE       0x000A000000
