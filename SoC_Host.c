@@ -76,11 +76,6 @@ int main() {
         signal[i] = (int32_t)(temp_signal * 65536);  
     }
     
-    printf("100 giá trị đầu tiên của signal:\n");
-    for (int i = 0; i < 100 && i < num_beat * 100; i++) {
-        printf("signal[%d] = %d\n", i, signal[i]); 
-    }
-    
     for (int i = 0; i < num_beat; i++) {
         fscanf(f_rr, "%f", &rr[i]);
         fscanf(f_symbol, "%d", &symbol[i]);
