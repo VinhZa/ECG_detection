@@ -96,7 +96,7 @@ int main() {
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
-    uint32_t* normal        = (uint32_t*)(membase + NORMAL_BASE);
+    uint32_t* addr        = (uint32_t*)(membase + ADDRESS_BASE);
 
     reg_start[0] = 1;
     reg_numbeat[0] = num_beat;
