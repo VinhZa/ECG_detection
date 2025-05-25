@@ -90,7 +90,6 @@ int main() {
     fpga.dma_ctrl = CGRA_info.dma_mmap;
     unsigned char* membase = (unsigned char*)CGRA_info.ddr_mmap;
 
-    uint32_t* reg_start    = (uint32_t*)(membase + START_BASE);
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
@@ -98,7 +97,6 @@ int main() {
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
     uint32_t* addr        = (uint32_t*)(membase + ADDRESS_BASE);
 
-    reg_start[0] = 1;
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
 
