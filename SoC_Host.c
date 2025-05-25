@@ -84,9 +84,6 @@ int main() {
     fclose(f_rr);
     fclose(f_symbol);
 
-    for (int i = 0; i < 100; i++) {
-        reg_signal[i] = signal[i];
-    }
     // Mở kết nối FPGA
     if (fpga_open() == 0) return -1;
     fpga.dma_ctrl = CGRA_info.dma_mmap;
@@ -99,6 +96,9 @@ int main() {
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
     uint32_t* addr        = (uint32_t*)(membase + ADDRESS_BASE);
 
+    for (int i = 0; i < 100; i++) {
+        reg_signal[i] = signal[i];
+    }
     reg_numbeat[0] = num_beat;
 
     
