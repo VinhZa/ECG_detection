@@ -103,7 +103,7 @@ int main() {
 
     
     dma_write(NUM_BEAT_BASE, 1);
-    dma_write(SIGNAL_BASE, 100);
+    dma_write(SIGNAL_BASE + 4, 100);
     
     dma_read(SIGNAL_BASE + 4, 100);
     write_output(reg_signal);    
