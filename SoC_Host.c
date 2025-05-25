@@ -14,8 +14,8 @@
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
 #define STATE_BASE       0x000A000000
-#define NORMAL_BASE      0x000A000040
-#define ABNORMAL_BASE    0x000A000044
+#define ADDRESS_BASE     0x000A0A0000
+#define INDEX_CLASSIFY   0x000AAA0004
 #define DONE_BASE        0x000A000048
 
 void write_output(uint32_t reg_signal[100]) {
@@ -100,11 +100,8 @@ int main() {
 
     reg_start[0] = 1;
     reg_numbeat[0] = num_beat;
-
-    dma_write(START_BASE, 1);
     dma_write(NUM_BEAT_BASE, 1);
 
-    
     for (int i = 0; i < 100; i++) {
         reg_signal[i] = signal[i];
     }
