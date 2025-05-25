@@ -8,7 +8,6 @@
 
 
 
-#define START_BASE       0x0000000000
 #define NUM_BEAT_BASE    0x0000000004
 #define SIGNAL_BASE      0x0000000008 
 #define RR_BASE          0x0008000000 
@@ -85,6 +84,9 @@ int main() {
     fclose(f_rr);
     fclose(f_symbol);
 
+    for (int i = 0; i < 100; i++) {
+        reg_signal[i] = signal[i];
+    }
     // Mở kết nối FPGA
     if (fpga_open() == 0) return -1;
     fpga.dma_ctrl = CGRA_info.dma_mmap;
@@ -98,14 +100,12 @@ int main() {
     uint32_t* addr        = (uint32_t*)(membase + ADDRESS_BASE);
 
     reg_numbeat[0] = num_beat;
-    dma_write(NUM_BEAT_BASE, 1);
 
-    for (int i = 0; i < 100; i++) {
-        reg_signal[i] = signal[i];
-    }
+    
+    dma_write(NUM_BEAT_BASE, 1);
     dma_write(SIGNAL_BASE, 100);
     
-    dma_read(SIGNAL_BASE, 100);
+    dma_read(SIGNAL_BASE + 4, 100);
     write_output(reg_signal);    
 
     
