@@ -103,9 +103,11 @@ int main() {
 
     
     dma_write(NUM_BEAT_BASE, 1);
-    dma_write(SIGNAL_BASE + 4, 100);
+    dma_write(SIGNAL_BASE, 100);
     
-    dma_read(SIGNAL_BASE + 4, 100);
+    dma_read(SIGNAL_BASE, 100);
+    dma_read(STATE_BASE, 1);
+    
     write_output(reg_signal);    
 
     
@@ -114,7 +116,7 @@ int main() {
         reg_symbol[i] = symbol[i];
     }
 
-    printf("da toi duoc day3");
+    printf("da toi duoc day");
     dma_write(RR_BASE, num_beat);
     dma_write(SYMBOL_BASE, num_beat);
 }
