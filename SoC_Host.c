@@ -9,7 +9,7 @@
 
 
 #define NUM_BEAT_BASE    0x0000000004
-#define SIGNAL_BASE      0x0000000008 
+#define SIGNAL_BASE      0x0000000014 
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
 #define STATE_BASE       0x000A000000
@@ -103,7 +103,7 @@ int main() {
 
     
     dma_write(NUM_BEAT_BASE, 1);
-    dma_write(SIGNAL_BASE, 98);
+    dma_write(SIGNAL_BASE, 100);
     
     dma_read(SIGNAL_BASE, 98);
     dma_read(STATE_BASE, 1);
