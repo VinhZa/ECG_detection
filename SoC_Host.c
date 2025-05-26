@@ -117,6 +117,4 @@ int main() {
     }
 
     printf("da toi duoc day");
-    dma_write(RR_BASE, num_beat);
-    dma_write(SYMBOL_BASE, num_beat);
 }
