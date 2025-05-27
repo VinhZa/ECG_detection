@@ -97,7 +97,7 @@ int main() {
     uint32_t* addr        = (uint32_t*)(membase + ADDRESS_BASE);
 
     uint32_t state_val;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 101; i++) {
         reg_signal[i] = signal[i];
     }
     for (int i = 0; i < num_beat; i++) {
@@ -113,7 +113,7 @@ int main() {
 
     
     dma_write(NUM_BEAT_BASE, 1);
-    dma_write(SIGNAL_BASE, 100);
+    dma_write(SIGNAL_BASE, 101);
     dma_write(RR_BASE, 1);
 
     int n;
