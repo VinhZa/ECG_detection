@@ -9,7 +9,7 @@
 
 
 #define NUM_BEAT_BASE    0x0000000004
-#define SIGNAL_BASE      0x0000000014 
+#define SIGNAL_BASE      0x0000000010 
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
 #define STATE_BASE       0x000A000000
@@ -96,6 +96,7 @@ int main() {
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
     uint32_t* addr        = (uint32_t*)(membase + ADDRESS_BASE);
 
+    uint32_t state_val;
     for (int i = 0; i < 100; i++) {
         reg_signal[i] = signal[i];
     }
@@ -104,17 +105,32 @@ int main() {
     
     dma_write(NUM_BEAT_BASE, 1);
     dma_write(SIGNAL_BASE, 100);
+    dma_write(RR_BASE, 1);
     
-    dma_read(SIGNAL_BASE, 98);
-    dma_read(STATE_BASE, 1);
-    
-    write_output(reg_signal);    
+    for (n = 1; n <= num_beat; n++) {
+        do {
+            state_val = dma_read(STATE_BASE, 1);
+        } while (state_val != 1);
+        dma_write(RR_BASE + n * 4, 1);
 
+        do {
+            state_val = dma_read(STATE_BASE, 1);
+        } while (state_val != 2);
+        dma_write(SIGNAL_BASE + n * 4 * 100, 100);
     
+        do {
+            state_val = dma_read(STATE_BASE, 1);
+        } while (state_val != 3);
+        dma_write(SIGNAL_BASE + n * 4 * 100, 100);
+    }
+
     for (int i = 0; i < num_beat; i++) {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
+    
+    do {
+            state_val = dma_read(STATE_BASE, 1);
+        } while (state_val != 5);
+    dma_write(SYMBOL_BASE, num_beat)
 
-    printf("da toi duoc day");
-}
