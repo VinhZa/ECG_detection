@@ -104,6 +104,11 @@ int main() {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
+    printf("10 giá trị đầu tiên của rr:\n");
+    for (int i = 0; i < 10 && i < num_beat; i++) {
+        printf("rr[%d] = %u\n", i, rr[i]);
+    }
+    
     reg_numbeat[0] = num_beat;
 
     
