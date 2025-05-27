@@ -100,6 +100,10 @@ int main() {
     for (int i = 0; i < 100; i++) {
         reg_signal[i] = signal[i];
     }
+    for (int i = 0; i < num_beat; i++) {
+        reg_rr[i] = rr[i];
+        reg_symbol[i] = symbol[i];
+    }
     reg_numbeat[0] = num_beat;
 
     
@@ -113,7 +117,7 @@ int main() {
             dma_read(STATE_BASE, 1);    
             state_val = *state;     
         } while (state_val != 1);
-        dma_write(RR_BASE + n * 4, 11);
+        dma_write(RR_BASE + n * 4, 1);
     
         do {
             dma_read(STATE_BASE, 1);
