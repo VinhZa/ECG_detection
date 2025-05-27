@@ -111,26 +111,26 @@ int main() {
     for (n = 1; n <= num_beat; n++) {
         do {
             dma_read(STATE_BASE, 1);    
-            state_val = *reg_state;     
+            state_val = *state;     
         } while (state_val != 1);
         dma_write(RR_BASE + n * 4, 11);
     
         do {
             dma_read(STATE_BASE, 1);
-            state_val = *reg_state;
+            state_val = *state;
         } while (state_val != 2);
         dma_write(SIGNAL_BASE + n * 4 * 100, 100);
     
         do {
             dma_read(STATE_BASE, 1);
-            state_val = *reg_state;
+            state_val = *state;
         } while (state_val != 3);
         dma_write(SIGNAL_BASE + n * 4 * 100, 100);
     }
-        
+  
     do {
-        state_val = dma_read(STATE_BASE, 1);
-        state_val = *reg_state;
+        dma_read(STATE_BASE, 1);
+        state_val = *state;
         } while (state_val != 5);
     dma_write(SYMBOL_BASE, num_beat);
 
