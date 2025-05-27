@@ -133,4 +133,5 @@ int main() {
         state_val = *state;
         } while (state_val != 5);
     dma_write(SYMBOL_BASE, num_beat);
-
+return 0;
+}
