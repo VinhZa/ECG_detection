@@ -104,10 +104,6 @@ int main() {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
-    printf("10 giá trị đầu tiên của rr:\n");
-    for (int i = 0; i < 10 && i < num_beat; i++) {
-        printf("rr[%d] = %u\n", i, rr[i]);
-    }
     
     reg_numbeat[0] = num_beat;
 
@@ -118,22 +114,13 @@ int main() {
 
     int n;
     for (n = 1; n <= num_beat; n++) {
-        do {
-            dma_read(STATE_BASE, 1);    
-            state_val = *state;     
-        } while (state_val != 1);
+
         dma_write(RR_BASE + n * 4, 1);
     
-        do {
-            dma_read(STATE_BASE, 1);
-            state_val = *state;
-        } while (state_val != 2);
+
         dma_write(SIGNAL_BASE + n * 4 * 100, 100);
     
-        do {
-            dma_read(STATE_BASE, 1);
-            state_val = *state;
-        } while (state_val != 3);
+
         dma_write(SIGNAL_BASE + n * 4 * 100, 100);
     }
   
