@@ -76,7 +76,7 @@ int main() {
     }
     
     for (int i = 0; i < num_beat; i++) {
-        fscanf(f_rr, "%f", &rr[i]);
+        fscanf(f_rr, "%d", &rr[i]);
         fscanf(f_symbol, "%d", &symbol[i]);
     }
 
