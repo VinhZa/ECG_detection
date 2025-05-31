@@ -12,7 +12,7 @@
 #define SIGNAL_BASE      0x0000000010 
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
-#define STATE_BASE       0x000A000000
+#define STATE_BASE       0x000A000004
 #define ADDRESS_BASE     0x000A0A0000
 #define INDEX_CLASSIFY   0x000AAA0004
 #define DONE_BASE        0x000A000048
@@ -109,25 +109,11 @@ int main() {
 
     
     dma_write(NUM_BEAT_BASE, 1);
-    dma_write(SIGNAL_BASE, 101);
+    dma_write(SIGNAL_BASE, 100);
     dma_write(RR_BASE, 1);
 
-    int n;
-    for (n = 1; n <= num_beat; n++) {
 
-        dma_write(RR_BASE + n * 4, 1);
-    
 
-        dma_write(SIGNAL_BASE + n * 4 * 100, 100);
-    
-
-        dma_write(SIGNAL_BASE + n * 4 * 100, 100);
-    }
-  
-    do {
-        dma_read(STATE_BASE, 1);
-        state_val = *state;
-        } while (state_val != 5);
-    dma_write(SYMBOL_BASE, num_beat);
+    dma_read(STATE_BASE, 1);
 return 0;
 }
