@@ -2,44 +2,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h> // for usleep
 #include "./FPGA_Driver.c"
 
 #define MAX_SIZE 10000
-
-
 
 #define NUM_BEAT_BASE    0x0000000004
 #define SIGNAL_BASE      0x0000000010 
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
 #define STATE_BASE       0x000A000004
-#define ADDRESS_BASE     0x000A0A0000
-#define INDEX_CLASSIFY   0x000AAA0004
 #define DONE_BASE        0x000A000048
 
-void write_output(uint32_t reg_signal[100]) {
-    FILE *fileOut = fopen("Output_Signal.txt", "w");
-    
-    if (!fileOut) {
-        perror("Error opening output file");
-        exit(EXIT_FAILURE);
-    }
-    
-    for (int i = 0; i < 100; i++) {
-        fprintf(fileOut, "%d ", reg_signal[i]);
-        fprintf(fileOut, "\n");
-    }
-    
-    fclose(fileOut);
-    printf("Output written to Output_ROM.txt\n");
-}
+#define SIGNALS_PER_BEAT 100
 
 int main() {
     uint32_t rr[MAX_SIZE], symbol[MAX_SIZE];
-    int32_t signal[MAX_SIZE * 100];
+    int32_t signal[MAX_SIZE * SIGNALS_PER_BEAT];
     int num_beat, record;
 
-    // Nhập thông tin
+    // Nhập dữ liệu
     printf("Nhập num_beat: ");
     scanf("%d", &num_beat);
     if (num_beat <= 0 || num_beat > MAX_SIZE) {
@@ -53,8 +35,8 @@ int main() {
         printf("Record phải trong khoảng 100–200\n");
         return -1;
     }
-    
-    // Tạo tên file input theo record
+
+    // Tên file
     char file_signal[100], file_rr[100], file_symbol[100];
     sprintf(file_signal, "data_ListSignal_%d.txt", record);
     sprintf(file_rr, "data_ListRRinternal_%d.txt", record);
@@ -69,12 +51,13 @@ int main() {
         return -1;
     }
 
-    for (int i = 0; i < num_beat*100; i++) {
+    // Đọc dữ liệu
+    for (int i = 0; i < num_beat * SIGNALS_PER_BEAT; i++) {
         float temp_signal;
         fscanf(f_signal, "%f", &temp_signal);
         signal[i] = (int32_t)(temp_signal * 65536);  
     }
-    
+
     for (int i = 0; i < num_beat; i++) {
         fscanf(f_rr, "%d", &rr[i]);
         fscanf(f_symbol, "%d", &symbol[i]);
@@ -89,31 +72,53 @@ int main() {
     fpga.dma_ctrl = CGRA_info.dma_mmap;
     unsigned char* membase = (unsigned char*)CGRA_info.ddr_mmap;
 
-    uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
-    uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
-    uint32_t* addr        = (uint32_t*)(membase + ADDRESS_BASE);
+    uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
 
-    uint32_t state_val;
-    for (int i = 0; i < 101; i++) {
+    // Ghi dữ liệu vào DDR
+    for (int i = 0; i < num_beat * SIGNALS_PER_BEAT; i++) {
         reg_signal[i] = signal[i];
     }
     for (int i = 0; i < num_beat; i++) {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
-    
+
+    // Ghi num_beat
     reg_numbeat[0] = num_beat;
 
-    
-    dma_write(NUM_BEAT_BASE, 1);
+    // Khởi tạo lần đầu (state 0): gửi 100 giá trị đầu tiên của S[0]
     dma_write(SIGNAL_BASE, 100);
     dma_write(RR_BASE, 1);
 
+    // Vòng lặp xử lý từng beat từ N = 1 đến N = num_beat - 1
+    int N = 1;
+    while (N < num_beat) {
+        dma_read(STATE_BASE, 1);
+        uint32_t state = *((uint32_t*)(membase + STATE_BASE));
 
+        if (state == 1) {
+            dma_write(RR_BASE + N * 4, 1);
+        } 
+        else if (state == 2 || state == 3) {
+            dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100100);
+            if (state == 3) N++;
+        }
 
+    }
+
+    // Xử lý sau cùng khi gặp state == 5
     dma_read(STATE_BASE, 1);
-return 0;
+    while (*((uint32_t*)(membase + STATE_BASE)) != 5) {
+        dma_read(STATE_BASE, 1);
+    }
+
+    // Khi đã ở state 5, ghi symbol & rr của beat cuối
+    dma_write(RR_BASE + (num_beat - 1) * 4, 1);
+    dma_write(SYMBOL_BASE + (num_beat - 1) * 4, 1);
+
+    printf("Hoàn tất DMA cho num_beat = %d\n", num_beat);
+    return 0;
 }
