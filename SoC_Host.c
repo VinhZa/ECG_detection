@@ -52,14 +52,16 @@ int main() {
     }
 
     // Đọc dữ liệu
-    for (int i = 0; i < num_beat * SIGNALS_PER_BEAT; i++) {
+    for (int i = 0; i < num_beat * 100; i++) {
         float temp_signal;
         fscanf(f_signal, "%f", &temp_signal);
         signal[i] = (int32_t)(temp_signal * 65536);  
     }
 
     for (int i = 0; i < num_beat; i++) {
-        fscanf(f_rr, "%d", &rr[i]);
+        uint32_t temp_rr
+        fscanf(f_rr, "%d", &temp_rr);
+        rr[i] = (uint32_t)(temp_rr *256);
         fscanf(f_symbol, "%d", &symbol[i]);
     }
 
@@ -78,7 +80,7 @@ int main() {
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
 
     // Ghi dữ liệu vào DDR
-    for (int i = 0; i < num_beat * SIGNALS_PER_BEAT; i++) {
+    for (int i = 0; i < num_beat * 100; i++) {
         reg_signal[i] = signal[i];
     }
     for (int i = 0; i < num_beat; i++) {
@@ -88,6 +90,7 @@ int main() {
 
     // Ghi num_beat
     reg_numbeat[0] = num_beat;
+    dma_write(NUM_BEAT_BASE, 1);
 
     // Khởi tạo lần đầu (state 0): gửi 100 giá trị đầu tiên của S[0]
     dma_write(SIGNAL_BASE, 100);
