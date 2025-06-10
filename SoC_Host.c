@@ -59,7 +59,7 @@ int main() {
     }
 
     for (int i = 0; i < num_beat; i++) {
-        uint32_t temp_rr
+        uint32_t temp_rr;
         fscanf(f_rr, "%d", &temp_rr);
         rr[i] = (uint32_t)(temp_rr *256);
         fscanf(f_symbol, "%d", &symbol[i]);
