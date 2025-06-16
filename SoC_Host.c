@@ -7,7 +7,7 @@
 
 #define MAX_SIZE 10000
 
-#define START_BASE       0x0000000008
+
 #define NUM_BEAT_BASE    0x0000000004
 #define SIGNAL_BASE      0x0000000010 
 #define RR_BASE          0x0008000000 
@@ -79,7 +79,6 @@ int main() {
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
-    uint32_t* reg_start   = (uint32_t*)(membase +  START_BASE);
     
     // Ghi dữ liệu vào DDR
     for (int i = 0; i < num_beat * 100; i++) {
@@ -94,9 +93,7 @@ int main() {
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
 
-    reg_start[0] = 1;
-    dma_write(START_BASE,1);
-    
+
     // Khởi tạo lần đầu (state 0): gửi 100 giá trị đầu tiên của S[0]
     dma_write(SIGNAL_BASE, 100);
     dma_write(RR_BASE, 1);
