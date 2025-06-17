@@ -117,7 +117,7 @@ int main() {
         dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
         N++;
     }
-    printf("Hoàn tất cập nhật và tối ưu mẫu);
+    printf("Hoàn tất cập nhật và tối ưu mẫu");
         
     return 0;
 }
