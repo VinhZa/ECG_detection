@@ -106,19 +106,16 @@ int main() {
         } while (*state != 1);
         reg_rr[N] = rr[N];
         dma_write(RR_BASE + N * 4, 1);
-    
+        
+        for (int i = 0; i < 100; i++) {
+            reg_signal[N * 100 + i] = signal[N * 100 + i];
+        }
         // Chờ đến khi state == 2 hoặc 3 để ghi tín hiệu
         do {
             dma_read(STATE_BASE, 1);
         } while (*state != 2 && *state != 3);
-    
-        // Ghi 100 tín hiệu của beat N vào thanh ghi trước khi gửi
-        for (int i = 0; i < 100; i++) {
-            reg_signal[N * 100 + i] = signal[N * 100 + i];
-        }
         dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
-    
-        if (*state == 3) N++;
+        N++;
     }
 
     // Xử lý sau cùng khi gặp state == 5
