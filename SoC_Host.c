@@ -81,22 +81,10 @@ int main() {
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
 
-    int32_t signal_buf_102[102];
-
-    // Chèn lại signal[0] và signal[1] vào vị trí 2 và 3
-    signal_buf_102[0] = signal[0];
-    signal_buf_102[1] = signal[1];
-    signal_buf_102[2] = signal[0];
-    signal_buf_102[3] = signal[1];
-    
-    // Sao chép phần còn lại từ signal[2] trở đi vào buffer
-    for (int i = 2; i < 100; i++) {
-        signal_buf_102[i + 2] = signal[i];
-    }
-    
+ 
     // Ghi 102 giá trị đầu tiên vào DDR
-    for (int i = 0; i < 102; i++) {
-        reg_signal[i] = signal_buf_102[i];
+    for (int i = 0; i < 100; i++) {
+        reg_signal[i] = signal[i];
     }
     
     for (int i = 0; i < num_beat; i++) {
@@ -108,7 +96,7 @@ int main() {
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
 
-    dma_write(SIGNAL_BASE, 102);
+    dma_write(SIGNAL_BASE, 100);
     dma_write(RR_BASE, 1);
 
     int N = 1;
