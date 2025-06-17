@@ -100,7 +100,7 @@ int main() {
     dma_write(RR_BASE, 1);
 
     int N = 1;
-    while (N < num_beat) {
+    while (N <= num_beat) {
         do {
             dma_read(STATE_BASE, 1);
         } while (*state != 1);
@@ -117,7 +117,8 @@ int main() {
         dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
         N++;
     }
-
+    printf("Hoàn tất cập nhật và tối ưu mẫu);
+        
     // Xử lý sau cùng khi gặp state == 5
     dma_read(STATE_BASE, 1);
     while (*((uint32_t*)(membase + STATE_BASE)) != 5) {
@@ -125,8 +126,8 @@ int main() {
     }
 
     // Khi đã ở state 5, ghi symbol & rr của beat cuối
-    dma_write(RR_BASE + (num_beat - 1) * 4, 1);
-    dma_write(SYMBOL_BASE + (num_beat - 1) * 4, 1);
+    dma_write(RR_BASE, num_beat);
+    dma_write(SYMBOL_BASE, num_beat);
 
     printf("Hoàn tất DMA cho num_beat = %d\n", num_beat);
     return 0;
