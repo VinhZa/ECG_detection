@@ -82,7 +82,7 @@ int main() {
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
 
  
-    // Ghi 102 giá trị đầu tiên vào DDR
+    // Ghi 100 giá trị đầu tiên vào DDR
     for (int i = 0; i < 100; i++) {
         reg_signal[i] = signal[i];
     }
@@ -119,16 +119,5 @@ int main() {
     }
     printf("Hoàn tất cập nhật và tối ưu mẫu);
         
-    // Xử lý sau cùng khi gặp state == 5
-    dma_read(STATE_BASE, 1);
-    while (*((uint32_t*)(membase + STATE_BASE)) != 5) {
-        dma_read(STATE_BASE, 1);
-    }
-
-    // Khi đã ở state 5, ghi symbol & rr của beat cuối
-    dma_write(RR_BASE, num_beat);
-    dma_write(SYMBOL_BASE, num_beat);
-
-    printf("Hoàn tất DMA cho num_beat = %d\n", num_beat);
     return 0;
 }
