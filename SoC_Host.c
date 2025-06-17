@@ -111,6 +111,7 @@ int main() {
     dma_write(SIGNAL_BASE, 102);
     dma_write(RR_BASE, 1);
 
+    int N = 1;
     while (N < num_beat) {
         do {
             dma_read(STATE_BASE, 1);
