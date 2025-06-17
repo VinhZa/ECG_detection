@@ -79,11 +79,26 @@ int main() {
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
+    uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
+
+    int32_t signal_buf_102[102];
+
+    // Chèn lại signal[0] và signal[1] vào vị trí 2 và 3
+    signal_buf_102[0] = signal[0];
+    signal_buf_102[1] = signal[1];
+    signal_buf_102[2] = signal[0];
+    signal_buf_102[3] = signal[1];
     
-    // Ghi dữ liệu vào DDR
-    for (int i = 0; i < num_beat * 100; i++) {
-        reg_signal[i] = signal[i];
+    // Sao chép phần còn lại từ signal[2] trở đi vào buffer
+    for (int i = 2; i < 100; i++) {
+        signal_buf_102[i + 2] = signal[i];
     }
+    
+    // Ghi 102 giá trị đầu tiên vào DDR
+    for (int i = 0; i < 102; i++) {
+        reg_signal[i] = signal_buf_102[i];
+    }
+    
     for (int i = 0; i < num_beat; i++) {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
@@ -93,25 +108,28 @@ int main() {
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
 
-
-    // Khởi tạo lần đầu (state 0): gửi 100 giá trị đầu tiên của S[0]
-    dma_write(SIGNAL_BASE, 100);
+    dma_write(SIGNAL_BASE, 102);
     dma_write(RR_BASE, 1);
 
-    // Vòng lặp xử lý từng beat từ N = 1 đến N = num_beat - 1
-    int N = 1;
     while (N < num_beat) {
-        dma_read(STATE_BASE, 1);
-        uint32_t state = *((uint32_t*)(membase + STATE_BASE));
-
-        if (state == 1) {
-            dma_write(RR_BASE + N * 4, 1);
-        } 
-        else if (state == 2 || state == 3) {
-            dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100100);
-            if (state == 3) N++;
+        do {
+            dma_read(STATE_BASE, 1);
+        } while (*state != 1);
+        reg_rr[N] = rr[N];
+        dma_write(RR_BASE + N * 4, 1);
+    
+        // Chờ đến khi state == 2 hoặc 3 để ghi tín hiệu
+        do {
+            dma_read(STATE_BASE, 1);
+        } while (*state != 2 && *state != 3);
+    
+        // Ghi 100 tín hiệu của beat N vào thanh ghi trước khi gửi
+        for (int i = 0; i < 100; i++) {
+            reg_signal[N * 100 + i] = signal[N * 100 + i];
         }
-
+        dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
+    
+        if (*state == 3) N++;
     }
 
     // Xử lý sau cùng khi gặp state == 5
