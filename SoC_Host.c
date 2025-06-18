@@ -33,25 +33,31 @@ int count_lines(const char* filename) {
     fclose(file);
     return lines;
 }
-
+int already_cleaned = 0;
 void cleanup() {
+    if (already_cleaned) return;  
+    already_cleaned = 1;
+    
     printf("\n[INFO] Đang dọn dẹp...\n");
     if (reg_reset) {
         reg_reset[0] = 0;
         dma_write(RESET_BASE, 1);
         printf("[CLEANUP] Đã reset FPGA.\n");
     }
+
     if (membase) {
         munmap(membase, MAPPING_SIZE);
         membase = NULL;
         printf("[CLEANUP] Đã unmap FPGA memory.\n");
     }
+
     if (fpga_fd != -1) {
         close(fpga_fd);
         fpga_fd = -1;
         printf("[CLEANUP] Đã đóng thiết bị FPGA.\n");
     }
 }
+
 
 void signal_handler(int sig) {
     printf("\n[INFO] Nhận tín hiệu %d (Ctrl+C?), thoát an toàn...\n", sig);
