@@ -115,9 +115,8 @@ int main() {
         return -1;
     }
     fpga.dma_ctrl = CGRA_info.dma_mmap;
-
-    membase = (unsigned char*)CGRA_info.pio_32_mmap;  // ✅ đúng base để dùng offset
-
+    unsigned char* membase = (unsigned char*)CGRA_info.ddr_mmap;
+    
     reg_reset    = (uint32_t*)(membase + RESET_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
