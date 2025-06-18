@@ -41,7 +41,6 @@ void cleanup() {
     printf("\n[INFO] Đang dọn dẹp...\n");
     if (reg_reset) {
         reg_reset[0] = 0;
-        dma_write(RESET_BASE, 1);
         printf("[CLEANUP] Đã reset FPGA.\n");
     }
 
