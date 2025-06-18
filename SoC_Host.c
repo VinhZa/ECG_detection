@@ -133,8 +133,6 @@ int main() {
         reg_symbol[i] = symbol[i];
     }
 
-    reg_reset[0] = 0;
-    dma_write(RESET_BASE, 1);
 
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
