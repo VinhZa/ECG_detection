@@ -25,6 +25,20 @@ unsigned char* membase = NULL;
 int fpga_fd = -1;
 uint32_t* reg_reset = NULL;
 
+// Hàm đếm số dòng trong file symbol
+int count_lines(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (!file) return -1;
+
+    int lines = 0;
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), file)) {
+        lines++;
+    }
+    fclose(file);
+    return lines;
+}
+
 void cleanup() {
     printf("\n[INFO] Đang dọn dẹp...\n");
 
@@ -54,7 +68,6 @@ void signal_handler(int sig) {
 }
 
 int main() {
-    // Đăng ký xử lý tín hiệu
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
     atexit(cleanup);
@@ -62,13 +75,6 @@ int main() {
     uint32_t rr[MAX_SIZE], symbol[MAX_SIZE];
     int32_t signal[MAX_SIZE * SIGNALS_PER_BEAT];
     int num_beat, record;
-
-    printf("Nhập num_beat: ");
-    scanf("%d", &num_beat);
-    if (num_beat <= 0 || num_beat > MAX_SIZE) {
-        printf("num_beat không hợp lệ\n");
-        return -1;
-    }
 
     printf("Nhập record number (100–200): ");
     scanf("%d", &record);
@@ -81,6 +87,14 @@ int main() {
     sprintf(file_signal, "data_ListSignal_%d.txt", record);
     sprintf(file_rr, "data_ListRRinternal_%d.txt", record);
     sprintf(file_symbol, "data_symbol_%d.txt", record);
+
+    // ✅ Đếm dòng symbol để lấy num_beat
+    num_beat = count_lines(file_symbol);
+    if (num_beat <= 0 || num_beat > MAX_SIZE) {
+        printf("Số dòng symbol không hợp lệ: %d\n", num_beat);
+        return -1;
+    }
+    printf("[INFO] Đã đọc %d dòng từ symbol → num_beat = %d\n", num_beat, num_beat);
 
     FILE *f_signal = fopen(file_signal, "r");
     FILE *f_rr = fopen(file_rr, "r");
@@ -121,7 +135,7 @@ int main() {
         return -1;
     }
 
-    reg_reset    = (uint32_t*)(membase + RESET_BASE);
+    uint32_t* reg_reset    = (uint32_t*)(membase + RESET_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
@@ -138,8 +152,6 @@ int main() {
         reg_symbol[i] = symbol[i];
     }
 
-    reg_reset[0] = 0;
-    dma_write(RESET_BASE, 1);
 
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
