@@ -10,11 +10,10 @@
 
 #define MAX_SIZE 10000
 
-#define RESET_BASE       0x0000000004
-#define NUM_BEAT_BASE    0x0000000080
-#define SIGNAL_BASE      0x0000000084 
-#define RR_BASE          0x0008000000 
-#define SYMBOL_BASE      0x0008800000 
+#define NUM_BEAT_BASE    0x0000000004
+#define SIGNAL_BASE      0x0000000080 
+#define RR_BASE          0x0008000010 
+#define SYMBOL_BASE      0x0008800010 
 #define STATE_BASE       0x000A000004
 
 #define SIGNALS_PER_BEAT 100
@@ -122,7 +121,6 @@ int main() {
     fpga.dma_ctrl = CGRA_info.dma_mmap;
     unsigned char* membase = (unsigned char*)CGRA_info.ddr_mmap;
     
-    reg_reset    = (uint32_t*)(membase + RESET_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
