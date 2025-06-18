@@ -9,7 +9,8 @@
 
 
 #define NUM_BEAT_BASE    0x0000000004
-#define SIGNAL_BASE      0x0000000010 
+#define START_BASE       0x0000000008
+#define SIGNAL_BASE      0x0000000020 
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
 #define STATE_BASE       0x000A000004
@@ -70,17 +71,19 @@ int main() {
     fclose(f_rr);
     fclose(f_symbol);
 
-    // Mở kết nối FPGA
-    if (fpga_open() == 0) return -1;
+    unsigned char* membase;
+    if (fpga_open() == 0)
+        exit(1);
+
     fpga.dma_ctrl = CGRA_info.dma_mmap;
-    unsigned char* membase = (unsigned char*)CGRA_info.ddr_mmap;
+    membase = (unsigned char*)CGRA_info.ddr_mmap;
 
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
-
+    uint32_t* reg_start     = (uint32_t*)(membase + START_BASE);
  
     // Ghi 100 giá trị đầu tiên vào DDR
     for (int i = 0; i < 100; i++) {
@@ -91,11 +94,12 @@ int main() {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
-
+    reg_start[0] = 0;
     // Ghi num_beat
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
-
+    dma_write(START_BASE, 1);
+    
     dma_write(SIGNAL_BASE, 100);
     dma_write(RR_BASE, 1);
 
