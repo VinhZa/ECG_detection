@@ -18,42 +18,34 @@
 #define STATE_BASE       0x000A000004
 
 #define SIGNALS_PER_BEAT 100
-#define MAPPING_SIZE     0x01000000  // 16MB là ví dụ
+#define MAPPING_SIZE     0x08900000  // ✅ đủ lớn để truy cập SYMBOL_BASE = 0x8800000
 
-// Biến toàn cục để cleanup
 unsigned char* membase = NULL;
 int fpga_fd = -1;
 uint32_t* reg_reset = NULL;
 
-// Hàm đếm số dòng trong file symbol
 int count_lines(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (!file) return -1;
-
     int lines = 0;
     char buffer[256];
-    while (fgets(buffer, sizeof(buffer), file)) {
-        lines++;
-    }
+    while (fgets(buffer, sizeof(buffer), file)) lines++;
     fclose(file);
     return lines;
 }
 
 void cleanup() {
     printf("\n[INFO] Đang dọn dẹp...\n");
-
     if (reg_reset) {
         reg_reset[0] = 0;
         dma_write(RESET_BASE, 1);
         printf("[CLEANUP] Đã reset FPGA.\n");
     }
-
     if (membase) {
         munmap(membase, MAPPING_SIZE);
         membase = NULL;
         printf("[CLEANUP] Đã unmap FPGA memory.\n");
     }
-
     if (fpga_fd != -1) {
         close(fpga_fd);
         fpga_fd = -1;
@@ -88,7 +80,6 @@ int main() {
     sprintf(file_rr, "data_ListRRinternal_%d.txt", record);
     sprintf(file_symbol, "data_symbol_%d.txt", record);
 
-    // ✅ Đếm dòng symbol để lấy num_beat
     num_beat = count_lines(file_symbol);
     if (num_beat <= 0 || num_beat > MAX_SIZE) {
         printf("Số dòng symbol không hợp lệ: %d\n", num_beat);
@@ -99,7 +90,6 @@ int main() {
     FILE *f_signal = fopen(file_signal, "r");
     FILE *f_rr = fopen(file_rr, "r");
     FILE *f_symbol = fopen(file_symbol, "r");
-
     if (!f_signal || !f_rr || !f_symbol) {
         perror("Lỗi mở file input");
         return -1;
@@ -110,48 +100,41 @@ int main() {
         fscanf(f_signal, "%f", &temp_signal);
         signal[i] = (int32_t)(temp_signal * 65536);  
     }
-
     for (int i = 0; i < num_beat; i++) {
         uint32_t temp_rr;
         fscanf(f_rr, "%d", &temp_rr);
         rr[i] = (uint32_t)(temp_rr * 256);
         fscanf(f_symbol, "%d", &symbol[i]);
     }
-
     fclose(f_signal);
     fclose(f_rr);
     fclose(f_symbol);
 
-    // Mở thiết bị và ánh xạ FPGA
-    fpga_fd = open("/dev/mem", O_RDWR | O_SYNC);
-    if (fpga_fd < 0) {
-        perror("Không mở được /dev/mem");
+    if (fpga_open() == 0) {
+        printf("fpga_open thất bại!\n");
         return -1;
     }
+    fpga.dma_ctrl = CGRA_info.dma_mmap;
 
-    membase = mmap(NULL, MAPPING_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fpga_fd, 0x00000000);
-    if (membase == MAP_FAILED) {
-        perror("mmap thất bại");
-        return -1;
-    }
+    membase = (unsigned char*)CGRA_info.pio_32_mmap;  // ✅ đúng base để dùng offset
 
-    uint32_t* reg_reset    = (uint32_t*)(membase + RESET_BASE);
+    reg_reset    = (uint32_t*)(membase + RESET_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
     uint32_t* reg_numbeat  = (uint32_t*)(membase + NUM_BEAT_BASE);
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
 
-    // Ghi dữ liệu vào FPGA
     for (int i = 0; i < num_beat * 100; i++) {
         reg_signal[i] = signal[i];
     }
-
     for (int i = 0; i < num_beat; i++) {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
 
+    reg_reset[0] = 0;
+    dma_write(RESET_BASE, 1);
 
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
@@ -163,14 +146,12 @@ int main() {
         while (*state != 1) {
             dma_read(STATE_BASE, 1);
         }
-
         reg_rr[N] = rr[N];
         dma_write(RR_BASE + N * 4, 1);
 
         while (*state != 2 && *state != 3) {
             dma_read(STATE_BASE, 1);
         }
-
         dma_write(SIGNAL_BASE + N * 100 * 4, 100);
         N++;
     }
