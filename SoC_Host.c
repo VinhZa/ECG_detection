@@ -7,9 +7,9 @@
 
 #define MAX_SIZE 10000
 
-
-#define NUM_BEAT_BASE    0x0000000004
-#define SIGNAL_BASE      0x0000000010 
+#define RESET_BASE       0x0000000004
+#define NUM_BEAT_BASE    0x0000000080
+#define SIGNAL_BASE      0x0000000084 
 #define RR_BASE          0x0008000000 
 #define SYMBOL_BASE      0x0008800000 
 #define STATE_BASE       0x000A000004
@@ -75,6 +75,7 @@ int main() {
     fpga.dma_ctrl = CGRA_info.dma_mmap;
     unsigned char* membase = (unsigned char*)CGRA_info.ddr_mmap;
 
+    uint32_t* reg_reset    = (uint32_t*)(membase + RESET_BASE);
     uint32_t* reg_signal   = (uint32_t*)(membase + SIGNAL_BASE);
     uint32_t* reg_rr       = (uint32_t*)(membase + RR_BASE);
     uint32_t* reg_symbol   = (uint32_t*)(membase + SYMBOL_BASE);
@@ -82,8 +83,7 @@ int main() {
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
 
  
-    // Ghi 100 giá trị đầu tiên vào DDR
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < num_beat*100; i++) {
         reg_signal[i] = signal[i];
     }
     
@@ -92,6 +92,9 @@ int main() {
         reg_symbol[i] = symbol[i];
     }
 
+    reg_reset[0] = 0;
+    dma_write(RESET_BASE,1);
+    
     // Ghi num_beat
     reg_numbeat[0] = num_beat;
     dma_write(NUM_BEAT_BASE, 1);
@@ -107,17 +110,20 @@ int main() {
         reg_rr[N] = rr[N];
         dma_write(RR_BASE + N * 4, 1);
         
-        for (int i = 0; i < 100; i++) {
-            reg_signal[N * 100 + i] = signal[N * 100 + i];
-        }
-        // Chờ đến khi state == 2 hoặc 3 để ghi tín hiệu
         do {
             dma_read(STATE_BASE, 1);
         } while (*state != 2 && *state != 3);
-        dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
+        dma_write(SIGNAL_BASE + N * 100 * 4, 100);
         N++;
     }
     printf("Hoàn tất cập nhật và tối ưu mẫu");
-        
+    
+    do {
+        dma_read(STATE_BASE, 1);
+    } while (*state != 5);
+    dma_write(RR_BASE,num_beat);
+    dma_write(SYMBOL_BASE,num_beat);
+    printf("Hoàn tất nap RR va symbol");
+
     return 0;
 }
