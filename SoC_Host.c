@@ -105,6 +105,7 @@ int main() {
 
     int N = 1;
     while (N <= num_beat) {
+        printf("bắt đầu truyền cụm%d\n", N);
         do {
             dma_read(STATE_BASE, 1);
         } while (*state != 1);
@@ -120,6 +121,7 @@ int main() {
         } while (*state != 2 && *state != 3);
         dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
         N++;
+        printf("Hoàn tất cập nhật cụm%d\n", N);
     }
     printf("Hoàn tất cập nhật và tối ưu mẫu");
         
