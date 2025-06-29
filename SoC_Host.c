@@ -129,6 +129,7 @@ int main() {
     
         reg_rr[2] = rr[2];
         dma_write(RR_BASE + 2 * 4, 1);
+        printf("endhere");
  
         
     return 0;
