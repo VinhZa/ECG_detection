@@ -103,34 +103,75 @@ int main() {
     dma_write(SIGNAL_BASE, 100);
     dma_write(RR_BASE, 1);
 
+// Xử lý cho N = 1
 int N = 1;
-for (N; N <= num_beat; N++) {
-    printf("bắt đầu truyền cụm%d\n", N);
-    
-    do {
-        dma_read(STATE_BASE, 1);
-    } while (*state != 1);
+printf("Bắt đầu truyền cụm %d\n", N);
 
-    reg_rr[N] = rr[N];
-    dma_write(RR_BASE + N * 4, 1);
+// Chờ state == 1
+do {
+    dma_read(STATE_BASE, 1);
+} while (*state != 1);
 
-    for (int i = 0; i < 100; i++) {
-        reg_signal[N * 100 + i] = signal[N * 100 + i];
-    }
+// Ghi RR cho N=1
+reg_rr[N] = rr[N];
+dma_write(RR_BASE + N * 4, 1);
 
-    do {
-        dma_read(STATE_BASE, 1);
-    } while (*state != 2 && *state != 3);
-
-    dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
-    
-    printf("Hoàn tất cập nhật cụm%d\n", N);
+// Ghi signal cho N=1
+for (int i = 0; i < 100; i++) {
+    reg_signal[N * 100 + i] = signal[N * 100 + i];
 }
 
+// Chờ state == 2 hoặc 3
+do {
+    dma_read(STATE_BASE, 1);
+} while (*state != 2 && *state != 3);
+
+// Ghi tín hiệu
+dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
+
+printf("Hoàn tất cập nhật cụm %d\n", N);
 
 
-printf("endhere");
- 
+// ----------------------------------------------------------
+// Tiếp tục xử lý cho N = 2
+N = 2;
+printf("Bắt đầu truyền cụm %d\n", N);
+
+// Chờ state == 1
+do {
+    dma_read(STATE_BASE, 1);
+} while (*state != 1);
+
+// Ghi RR cho N=2
+reg_rr[N] = rr[N];
+dma_write(RR_BASE + N * 4, 1);
+
+// Ghi signal cho N=2
+for (int i = 0; i < 100; i++) {
+    reg_signal[N * 100 + i] = signal[N * 100 + i];
+}
+
+// Chờ state == 2 hoặc 3
+do {
+    dma_read(STATE_BASE, 1);
+} while (*state != 2 && *state != 3);
+
+// Ghi tín hiệu
+dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
+
+printf("Hoàn tất cập nhật cụm %d\n", N);
+
+N = 3;    
+printf("Bắt đầu truyền cụm %d\n", N);
+do {
+    dma_read(STATE_BASE, 1);
+} while (*state != 1);
+
+reg_rr[N] = rr[N];
+dma_write(RR_BASE + N * 4, 1);
+
+printf("endhere\n");
+
         
     return 0;
 }
