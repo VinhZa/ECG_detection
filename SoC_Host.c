@@ -103,30 +103,33 @@ int main() {
     dma_write(SIGNAL_BASE, 100);
     dma_write(RR_BASE, 1);
 
-    int N = 1;
-    for (int N = 1; N <= num_beat; N++) {
-        printf("bắt đầu truyền cụm%d\n", N);
-        
         do {
             dma_read(STATE_BASE, 1);
         } while (*state != 1);
     
-        reg_rr[N] = rr[N];
-        dma_write(RR_BASE + N * 4, 1);
+        reg_rr[1] = rr[1];
+        dma_write(RR_BASE + 1 * 4, 1);
     
         for (int i = 0; i < 100; i++) {
-            reg_signal[N * 100 + i] = signal[N * 100 + i];
+            reg_signal[1 * 100 + i] = signal[1 * 100 + i];
         }
     
         do {
             dma_read(STATE_BASE, 1);
         } while (*state != 2 && *state != 3);
     
-        dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
+        dma_write(SIGNAL_BASE + 1 * SIGNALS_PER_BEAT * 4, 100);
         
-        printf("Hoàn tất cập nhật cụm%d\n", N);
-    }
-    printf("Hoàn tất cập nhật và tối ưu mẫu");
+        printf("Hoàn tất cập nhật cụm%d\n", 1);
+
+
+         do {
+            dma_read(STATE_BASE, 1);
+        } while (*state != 1);
+    
+        reg_rr[2] = rr[2];
+        dma_write(RR_BASE + 2 * 4, 1);
+ 
         
     return 0;
 }
