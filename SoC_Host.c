@@ -104,26 +104,38 @@ int main() {
     dma_write(RR_BASE, 1);
 
 for (int N = 1; N <= num_beat; N++) {
-    printf("bắt đầu truyền cụm%d\n", N);
-    
+    printf("=== Bắt đầu truyền cụm %d ===\n", N);
+
+    // Đợi trạng thái == 1
     do {
         dma_read(STATE_BASE, 1);
+        printf("[DMA READ] Địa chỉ: 0x%08X | Giá trị đọc được: %d\n", STATE_BASE, *state);
     } while (*state != 1);
 
+    // Ghi RR cụm N
     reg_rr[N] = rr[N];
+    printf("[GHI RR] reg_rr[%d] (addr = 0x%08lX) = %u\n", N, (uintptr_t)&reg_rr[N] - (uintptr_t)membase, rr[N]);
     dma_write(RR_BASE + N * 4, 1);
 
+    // Ghi SIGNAL cụm N
     for (int i = 0; i < 100; i++) {
         reg_signal[N * 100 + i] = signal[N * 100 + i];
     }
+    printf("[GHI SIGNAL] reg_signal[%d~%d] (addr = 0x%08lX ~ 0x%08lX)\n", 
+        N * 100, N * 100 + 99,
+        (uintptr_t)&reg_signal[N * 100] - (uintptr_t)membase,
+        (uintptr_t)&reg_signal[N * 100 + 99] - (uintptr_t)membase);
 
+    // Đợi trạng thái == 2 hoặc 3
     do {
         dma_read(STATE_BASE, 1);
+        printf("[DMA READ] Địa chỉ: 0x%08X | Giá trị đọc được: %d\n", STATE_BASE, *state);
     } while (*state != 2 && *state != 3);
 
+    // DMA write signal block
     dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
     
-    printf("Hoàn tất cập nhật cụm%d\n", N);
+    printf("=== Hoàn tất cụm %d ===\n\n", N);
 }
 
 
