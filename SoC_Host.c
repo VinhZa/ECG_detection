@@ -139,7 +139,7 @@ for (int N = 1; N <= num_beat; N++) {
     offset += 4;
     M = M + 1;
     }
-    
+    print("gia tri M: %d\n",M)
     // Đợi trạng thái == 1
     do {
         dma_read(STATE_BASE, 1);
