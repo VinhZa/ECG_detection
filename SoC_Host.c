@@ -97,7 +97,7 @@ int main() {
 
         
     uintptr_t offset = 0;
-    int32_t M = 0;
+    int32_t M = 1;
     uint32_t rr_mod[MAX_SIZE * 2];
     int rr_mod_len = 0;
     
@@ -137,9 +137,9 @@ for (int N = 1; N <= num_beat; N++) {
     
     if ((offset & 0xF) == 0xC) {
     offset += 4;
-    M = M + 1;
+    M ++;
     }
-    print("gia tri M: %d\n",M)
+    print("gia tri M: %d\n",M);
     // Đợi trạng thái == 1
     do {
         dma_read(STATE_BASE, 1);
