@@ -110,16 +110,6 @@ int main() {
             rr_mod[rr_mod_len++] = rr[i];   // Dời phần tử thứ 4 về sau
         }
     }
-    printf("=== In ra 30 giá trị đầu tiên của rr_mod[] ===\n");
-    uintptr_t addr = RR_BASE;
-    for (int i = 0; i < 30 && i < rr_mod_len; i++) {
-        if (rr_mod[i] == 0) {
-            printf("rr_mod[%2d] = %10u  (CHÈN 0)    --> addr = 0x%08lX\n", i, rr_mod[i], addr);
-        } else {
-            printf("rr_mod[%2d] = %10u               --> addr = 0x%08lX\n", i, rr_mod[i], addr);
-        }
-        addr += 4;
-    }
     
     reg_start[0] = 0;
     // Ghi num_beat
@@ -139,7 +129,6 @@ for (int N = 1; N <= num_beat; N++) {
     offset += 4;
     M ++;
     }
-    print("gia tri M: %d\n",M);
     // Đợi trạng thái == 1
     do {
         dma_read(STATE_BASE, 1);
