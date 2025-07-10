@@ -94,6 +94,33 @@ int main() {
         reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
+
+        
+    uintptr_t offset = 0;
+    int32_t M = 0;
+    uint32_t rr_mod[MAX_SIZE * 2];
+    int rr_mod_len = 0;
+    
+    // Chèn 0 sau mỗi 3 phần tử và dời phần tử thứ 4 về sau
+    for (int i = 0; i < num_beat; i++) {
+        if ((i % 4) != 3) {
+            rr_mod[rr_mod_len++] = rr[i];
+        } else {
+            rr_mod[rr_mod_len++] = 0;       // Chèn 0 vào vị trí mới
+            rr_mod[rr_mod_len++] = rr[i];   // Dời phần tử thứ 4 về sau
+        }
+    }
+    printf("=== In ra 30 giá trị đầu tiên của rr_mod[] ===\n");
+    uintptr_t addr = RR_BASE;
+    for (int i = 0; i < 30 && i < rr_mod_len; i++) {
+        if (rr_mod[i] == 0) {
+            printf("rr_mod[%2d] = %10u  (CHÈN 0)    --> addr = 0x%08lX\n", i, rr_mod[i], addr);
+        } else {
+            printf("rr_mod[%2d] = %10u               --> addr = 0x%08lX\n", i, rr_mod[i], addr);
+        }
+        addr += 4;
+    }
+    
     reg_start[0] = 0;
     // Ghi num_beat
     reg_numbeat[0] = num_beat;
@@ -101,11 +128,18 @@ int main() {
     dma_write(START_BASE, 1);
     
     dma_write(SIGNAL_BASE, 100);
-    dma_write(RR_BASE, 1);
-
+    dma_write(RR_BASE, 1);  
+    
 for (int N = 1; N <= num_beat; N++) {
     printf("=== Bắt đầu truyền cụm %d ===\n", N);
-
+    
+    offset = N*4;
+    
+    if ((offset & 0xF) == 0xC) {
+    offset += 4;
+    M = M + 1;
+    }
+    
     // Đợi trạng thái == 1
     do {
         dma_read(STATE_BASE, 1);
@@ -113,9 +147,9 @@ for (int N = 1; N <= num_beat; N++) {
     } while (*state != 1);
 
     // Ghi RR cụm N
-    reg_rr[N] = rr[N];
+    reg_rr[M] = rr_mod[M];
     printf("[GHI RR] reg_rr[%d] (addr = 0x%08lX) = %u\n", N, (uintptr_t)&reg_rr[N] - (uintptr_t)membase, rr[N]);
-    dma_write(RR_BASE + N * 4, 1);
+    dma_write(RR_BASE + offset, 1);
 
     // Ghi SIGNAL cụm N
     for (int i = 0; i < 100; i++) {
@@ -134,8 +168,8 @@ for (int N = 1; N <= num_beat; N++) {
 
     // DMA write signal block
     dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
-    
     printf("=== Hoàn tất cụm %d ===\n\n", N);
+    M++;
 }
 
 
