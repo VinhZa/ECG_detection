@@ -124,7 +124,8 @@ for (int N = 1; N <= num_beat; N++) {
     printf("=== Bắt đầu truyền cụm %d ===\n", N);
     
     offset = N*4;
-    
+    printf("[DEBUG] Trước khi vào while: offset = 0x%lX, offset & 0xF = 0x%lX\n", offset, offset & 0xF);
+
     while ((offset & 0xF) == 0xC) {
         printf("[SKIP] Bỏ qua rr_mod[%d] vì addr = 0x%08lX kết thúc bằng 0xC\n", M, RR_BASE + offset);
         offset += 4;
