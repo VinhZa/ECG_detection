@@ -146,10 +146,16 @@ for (int N = 1; N <= num_beat; N++) {
     for (int i = 0; i < 100; i++) {
         reg_signal[N * 100 + i] = signal[N * 100 + i];
     }
-    printf("[GHI SIGNAL] reg_signal[%d~%d] (addr = 0x%08lX ~ 0x%08lX)\n", 
-        N * 100, N * 100 + 99,
-        (uintptr_t)&reg_signal[N * 100] - (uintptr_t)membase,
-        (uintptr_t)&reg_signal[N * 100 + 99] - (uintptr_t)membase);
+    int sig_start = N * 100;
+    int sig_end = sig_start + 99;
+    
+    printf("[GHI SIGNAL] reg_signal[%d~%d] = {first = %d, last = %d} (addr = 0x%08lX ~ 0x%08lX)\n", 
+   sig_start, sig_end,
+   signal[sig_start], signal[sig_end],
+   (uintptr_t)&reg_signal[sig_start] - (uintptr_t)membase,
+   (uintptr_t)&reg_signal[sig_end] - (uintptr_t)membase);        N * 100, N * 100 + 99,
+    (uintptr_t)&reg_signal[N * 100] - (uintptr_t)membase,
+    (uintptr_t)&reg_signal[N * 100 + 99] - (uintptr_t)membase);
 
     // Đợi trạng thái == 2 hoặc 3
     do {
