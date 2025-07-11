@@ -125,9 +125,10 @@ for (int N = 1; N <= num_beat; N++) {
     
     offset = N*4;
     
-    if ((offset & 0xF) == 0xC) {
-    offset += 4;
-    M ++;
+    while ((offset & 0xF) == 0xC) {
+        printf("[SKIP] Bỏ qua rr_mod[%d] vì addr = 0x%08lX kết thúc bằng 0xC\n", M, RR_BASE + offset);
+        offset += 4;
+        M++;
     }
     // Đợi trạng thái == 1
     do {
