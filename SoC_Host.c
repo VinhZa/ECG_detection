@@ -123,7 +123,7 @@ int main() {
 for (int N = 1; N <= num_beat; N++) {
     printf("=== Bắt đầu truyền cụm %d ===\n", N);
     
-    offset = N*4;
+    offset = M*4;
     printf("[DEBUG] Trước khi vào while: offset = 0x%lX, offset & 0xF = 0x%lX\n", offset, offset & 0xF);
 
     while ((offset & 0xF) == 0xC) {
