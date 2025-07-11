@@ -148,21 +148,18 @@ for (int N = 1; N <= num_beat; N++) {
     }
     int sig_start = N * 100;
     int sig_end = sig_start + 99;
-    
-    printf("[GHI SIGNAL] reg_signal[%d~%d] = {first = %d, last = %d} (addr = 0x%08lX ~ 0x%08lX)\n", 
-   sig_start, sig_end,
-   signal[sig_start], signal[sig_end],
-   (uintptr_t)&reg_signal[sig_start] - (uintptr_t)membase,
-   (uintptr_t)&reg_signal[sig_end] - (uintptr_t)membase);        N * 100, N * 100 + 99,
-    (uintptr_t)&reg_signal[N * 100] - (uintptr_t)membase,
-    (uintptr_t)&reg_signal[N * 100 + 99] - (uintptr_t)membase);
 
     // Đợi trạng thái == 2 hoặc 3
     do {
         dma_read(STATE_BASE, 1);
         printf("[DMA READ] Địa chỉ: 0x%08X | Giá trị đọc được: %d\n", STATE_BASE, *state);
     } while (*state != 2 && *state != 3);
-
+    
+    printf("[GHI SIGNAL] reg_signal[%d~%d] = {first = %d, last = %d} (addr = 0x%08lX ~ 0x%08lX)\n", 
+       sig_start, sig_end,
+       signal[sig_start], signal[sig_end],
+       (uintptr_t)&reg_signal[sig_start] - (uintptr_t)membase,
+       (uintptr_t)&reg_signal[sig_end] - (uintptr_t)membase);
     // DMA write signal block
     dma_write(SIGNAL_BASE + N * SIGNALS_PER_BEAT * 4, 100);
     printf("=== Hoàn tất cụm %d ===\n\n", N);
