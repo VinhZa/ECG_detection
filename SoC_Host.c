@@ -101,14 +101,17 @@ int main() {
     uint32_t rr_mod[MAX_SIZE * 2];
     int rr_mod_len = 0;
     
-    // Chèn 0 sau mỗi 3 phần tử và dời phần tử thứ 4 về sau
+    int rr_mod_len = 0;
+    int count = 0;
+    
     for (int i = 0; i < num_beat; i++) {
-        if ((i % 4) != 3) {
-            rr_mod[rr_mod_len++] = rr[i];
-        } else {
-            rr_mod[rr_mod_len++] = 0;       // Chèn 0 vào vị trí mới
-            rr_mod[rr_mod_len++] = rr[i];   // Dời phần tử thứ 4 về sau
+        // Nếu địa chỉ hiện tại (tính theo số phần tử * 4) có đuôi là 0xC → chèn 0
+        if (((count * 4) & 0xF) == 0xC) {
+            rr_mod[rr_mod_len++] = 0;
+            count++;
         }
+        rr_mod[rr_mod_len++] = rr[i];
+        count++;
     }
     for (int i = 0; i < 30 && i < rr_mod_len; i++) {
         printf("rr_mod[%2d] = %u\n", i, rr_mod[i]);
