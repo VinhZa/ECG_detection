@@ -141,8 +141,7 @@ for (int N = 1; N <= num_beat; N++) {
     } while (*state != 1);
 
     // Ghi RR cụm N
-    reg_rr[N] = 0;
-    reg_rr[M] = rr_mod[M];
+    reg_rr[N] = rr_mod[M];
     printf("[GHI RR] reg_rr[%d] (addr = 0x%08lX) = %u\n", M, (uintptr_t)&reg_rr[M] - (uintptr_t)membase, rr_mod[M]);
     dma_write(RR_BASE + offset, 1);
 
