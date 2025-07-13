@@ -110,7 +110,9 @@ int main() {
             rr_mod[rr_mod_len++] = rr[i];   // Dời phần tử thứ 4 về sau
         }
     }
-    
+    for (int i = 0; i < 30 && i < rr_mod_len; i++) {
+        printf("rr_mod[%2d] = %u\n", i, rr_mod[i]);
+    }
     reg_start[0] = 0;
     // Ghi num_beat
     reg_numbeat[0] = num_beat;
