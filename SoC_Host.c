@@ -100,8 +100,6 @@ int main() {
     int32_t M = 1;
     uint32_t rr_mod[MAX_SIZE * 2];
     int rr_mod_len = 0;
-    
-    int rr_mod_len = 0;
     int count = 0;
     
     for (int i = 0; i < num_beat; i++) {
