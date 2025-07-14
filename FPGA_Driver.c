@@ -340,22 +340,35 @@ int fpga_open()
   return (1);
 }
 void dma_write(U64 Offset, U32 size){
-    // This is DMA write function: from DDR to CGRA
-	int status;
-      // Assign the source address in DDR
-	  *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD0) = DDR_BASE_PHYS + Offset;
-      // Assign the size of the data to be transferred on DDR. One unit of size = 8 * size of U32
-      ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD2 = size*sizeof(U32);
-      // Assign the destination address in CGRA
-	  *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD0) = LMM_BASE_PHYS + Offset;
-      // Assign the size of the data to be received on CGRA. One unit of size = 8 * size of U32
-	  ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD2 = size*sizeof(U32);
-      // Start the DMA transfer
-	  ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_CTRL2 = 1;
-      // Wait for the DMA transfer to complete
-      do {
-          status = ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_STATUS & 3;
-      } while (status != 0 && status != 3);
+    int status;
+
+    // Backup current DATA_ATTR
+    U32 prev_attr = ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DATA_ATTR;
+
+    // If writing exactly 1 value (4 byte), and at offset % 16 == 12 (cuối burst)
+    if (size == 1 && (Offset & 0xF) == 0xC) {
+        // Force DATA_ATTR to burst_len = 0, AxSIZE = 2 (32bit), WSTRB enabled
+        ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DATA_ATTR = 0x0400000F;
+    }
+
+    // Assign the source address in DDR
+    *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD0) = DDR_BASE_PHYS + Offset;
+    ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD2 = size * sizeof(U32);
+
+    // Assign the destination address in CGRA
+    *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD0) = LMM_BASE_PHYS + Offset;
+    ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD2 = size * sizeof(U32);
+
+    // Start the DMA
+    ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_CTRL2 = 1;
+
+    // Wait for completion
+    do {
+        status = ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_STATUS & 3;
+    } while (status != 0 && status != 3);
+
+    // Restore DATA_ATTR
+    ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DATA_ATTR = prev_attr;
 }
 
 void dma_read(U64 Offset, U32 size){
