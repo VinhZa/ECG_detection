@@ -90,18 +90,28 @@ int main() {
     }
     
     for (int i = 0; i < num_beat; i++) {
-        reg_rr[i]     = rr[i];
         reg_symbol[i] = symbol[i];
     }
 
-    
+        
     uintptr_t offset = 0;
     int32_t M = 1;
     uint32_t rr_mod[MAX_SIZE * 2];
     int rr_mod_len = 0;
     int count = 0;
     
-
+    for (int i = 0; i < num_beat; i++) {
+        // Nếu địa chỉ hiện tại (tính theo số phần tử * 4) có đuôi là 0xC → chèn 0
+        if (((count * 4) & 0xF) == 0xC) {
+            rr_mod[rr_mod_len++] = 0;
+            count++;
+        }
+        rr_mod[rr_mod_len++] = rr[i];
+        count++;
+    }
+    for (int i = 0; i < 30 && i < rr_mod_len; i++) {
+        printf("rr_mod[%2d] = %u\n", i, rr_mod[i]);
+    }
     reg_start[0] = 0;
     // Ghi num_beat
     reg_numbeat[0] = num_beat;
@@ -114,6 +124,14 @@ int main() {
 for (int N = 1; N <= num_beat; N++) {
     printf("=== Bắt đầu truyền cụm %d ===\n", N);
     
+    offset = M*4;
+    printf("[DEBUG] Trước khi vào while: offset = 0x%lX, offset & 0xF = 0x%lX\n", offset, offset & 0xF);
+
+    while ((offset & 0xF) == 0xC) {
+        printf("[SKIP] Bỏ qua rr_mod[%d] vì addr = 0x%08lX kết thúc bằng 0xC\n", M, RR_BASE + offset);
+        offset += 4;
+        M++;
+    }
     // Đợi trạng thái == 1
     do {
         dma_read(STATE_BASE, 1);
@@ -121,7 +139,8 @@ for (int N = 1; N <= num_beat; N++) {
     } while (*state != 1);
 
     // Ghi RR cụm N
-    printf("[GHI RR] reg_rr[%d] (addr = 0x%08lX) = %u\n", N, (uintptr_t)&reg_rr[N] - (uintptr_t)membase, rr[N]);
+    reg_rr[M] = rr_mod[M];
+    printf("[GHI RR] reg_rr[%d] (addr = 0x%08lX) = %u\n", M, (uintptr_t)&reg_rr[M] - (uintptr_t)membase, rr_mod[M]);
     dma_write(RR_BASE + offset, 1);
 
     // Ghi SIGNAL cụm N
