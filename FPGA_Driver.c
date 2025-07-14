@@ -1,8 +1,3 @@
-// Created by: Le Vu Trung Duong
-// Created on: 2025-03-06
-// Description: This file includes the FPGA driver functions to interact with the FPGA.
-
-
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -345,31 +340,22 @@ int fpga_open()
   return (1);
 }
 void dma_write(U64 Offset, U32 size){
-    int status;
-
-    if (size == 1) {
-        // Ép truyền đúng 1 beat
-        ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DATA_ATTR = 0x0400000F;
-    } else {
-        // Cho phép burst tự do
-        ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DATA_ATTR = 0x04C3D30F;
-    }
-
-    // Ghi địa chỉ nguồn (DDR)
-    *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD0) = DDR_BASE_PHYS + Offset;
-    ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD2 = size * sizeof(U32);
-
-    // Ghi địa chỉ đích (LMM / FPGA)
-    *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD0) = LMM_BASE_PHYS + Offset;
-    ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD2 = size * sizeof(U32);
-
-    // Bắt đầu DMA
-    ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_CTRL2 = 1;
-
-    // Đợi DMA hoàn tất
-    do {
-        status = ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_STATUS & 3;
-    } while (status != 0 && status != 3);
+    // This is DMA write function: from DDR to CGRA
+	int status;
+      // Assign the source address in DDR
+	  *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD0) = DDR_BASE_PHYS + Offset;
+      // Assign the size of the data to be transferred on DDR. One unit of size = 8 * size of U32
+      ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_SRC_DSCR_WORD2 = size*sizeof(U32);
+      // Assign the destination address in CGRA
+	  *(U64*)&(((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD0) = LMM_BASE_PHYS + Offset;
+      // Assign the size of the data to be received on CGRA. One unit of size = 8 * size of U32
+	  ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_DST_DSCR_WORD2 = size*sizeof(U32);
+      // Start the DMA transfer
+	  ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_CTRL2 = 1;
+      // Wait for the DMA transfer to complete
+      do {
+          status = ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_STATUS & 3;
+      } while (status != 0 && status != 3);
 }
 
 void dma_read(U64 Offset, U32 size){
@@ -390,4 +376,3 @@ void dma_read(U64 Offset, U32 size){
 	      status = ((struct dma_ctrl*)fpga.dma_ctrl)->ZDMA_CH_STATUS & 3;
       } while (status != 0 && status != 3);
 }										   
-
