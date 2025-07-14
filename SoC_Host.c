@@ -85,13 +85,11 @@ int main() {
     uint32_t* state        = (uint32_t*)(membase + STATE_BASE);
     uint32_t* reg_start     = (uint32_t*)(membase + START_BASE);
  
-    // Ghi 100 giá trị đầu tiên vào DDR
     for (int i = 0; i < 100; i++) {
         reg_signal[i] = signal[i];
     }
     
     for (int i = 0; i < num_beat; i++) {
-        reg_rr[i] = rr[i];
         reg_symbol[i] = symbol[i];
     }
 
@@ -141,7 +139,7 @@ for (int N = 1; N <= num_beat; N++) {
     } while (*state != 1);
 
     // Ghi RR cụm N
-    reg_rr[N] = rr_mod[M];
+    reg_rr[M] = rr_mod[M];
     printf("[GHI RR] reg_rr[%d] (addr = 0x%08lX) = %u\n", M, (uintptr_t)&reg_rr[M] - (uintptr_t)membase, rr_mod[M]);
     dma_write(RR_BASE + offset, 1);
 
