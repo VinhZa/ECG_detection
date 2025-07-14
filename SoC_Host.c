@@ -93,7 +93,8 @@ int main() {
         reg_symbol[i] = symbol[i];
     }
 
-        
+    reg_rr[0] = rr[0];
+    
     uintptr_t offset = 0;
     int32_t M = 1;
     uint32_t rr_mod[MAX_SIZE * 2];
