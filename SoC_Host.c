@@ -112,6 +112,9 @@ int main() {
     for (int i = 0; i < 30 && i < rr_mod_len; i++) {
         printf("rr_mod[%2d] = %u\n", i, rr_mod[i]);
     }
+    for (int i = 0; i < rr_mod_len; i ++){
+        reg_rr[i] = rr_mod[i];
+    }
     reg_start[0] = 0;
     // Ghi num_beat
     reg_numbeat[0] = num_beat;
@@ -138,8 +141,6 @@ for (int N = 1; N <= num_beat; N++) {
         printf("[DMA READ] Địa chỉ: 0x%08X | Giá trị đọc được: %d\n", STATE_BASE, *state);
     } while (*state != 1);
 
-    // Ghi RR cụm N
-    reg_rr[M] = rr_mod[M];
     printf("[GHI RR] reg_rr[%d] (addr = 0x%08lX) = %u\n", M, (uintptr_t)&reg_rr[M] - (uintptr_t)membase, rr_mod[M]);
     dma_write(RR_BASE + offset, 1);
 
